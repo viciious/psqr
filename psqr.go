@@ -1,7 +1,11 @@
 package psqr
 
+import "sync"
+
 // Psqr collects observations and returns an estimate of requested p-quantile, as described in the P-Square algorithm
 type Psqr struct {
+	sync.Mutex
+
 	count int
 	q     [5]float64
 	n     [5]int
