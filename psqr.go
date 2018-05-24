@@ -6,6 +6,7 @@ import "sync"
 type Psqr struct {
 	sync.Mutex
 
+	perc  float64
 	count int
 	q     [5]float64
 	n     [5]int
@@ -16,16 +17,8 @@ type Psqr struct {
 // NewPsqr returns a new instance of Psqr
 func NewPsqr(q float64) *Psqr {
 	p := &Psqr{}
-
-	// calculate and store the increment in desired marker positions
-	p.dn[0], p.dn[1], p.dn[2], p.dn[3], p.dn[4] = 0.0, q*0.5, q, (1+q)*0.5, 1.0
-
-	// set initial marker positions
-	for i := 0; i < 5; i++ {
-		p.n[i] = i + 1
-		p.np[i] = p.dn[i]*4 + 1
-	}
-
+	p.perc = q
+	p.Reset()
 	return p
 }
 
@@ -118,4 +111,19 @@ func (p *Psqr) Add(v float64) float64 {
 // Get returns the current estimate of p-quantile
 func (p *Psqr) Get() float64 {
 	return p.q[2]
+}
+
+func (p *Psqr) Reset() {
+	q := p.perc
+
+	p.count = 0
+
+	// calculate and store the increment in desired marker positions
+	p.dn[0], p.dn[1], p.dn[2], p.dn[3], p.dn[4] = 0.0, q*0.5, q, (1+q)*0.5, 1.0
+
+	// set initial marker positions
+	for i := 0; i < 5; i++ {
+		p.n[i] = i + 1
+		p.np[i] = p.dn[i]*4 + 1
+	}
 }
